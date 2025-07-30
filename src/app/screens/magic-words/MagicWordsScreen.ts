@@ -64,9 +64,11 @@ export class MagicWordsScreen extends Container {
     const ButtonsOffset = 30;
     this.nextConversationButton.y = engine().renderer.height * 0.8;
     this.nextConversationButton.x = (engine().renderer.width * 0.5) + (this.nextConversationButton.width * 0.5) + ButtonsOffset;
+    this.nextConversationButton.visible = false;
 
     this.prevConversationButton.y = engine().renderer.height * 0.8;
     this.prevConversationButton.x = (engine().renderer.width * 0.5) - (this.prevConversationButton.width * 0.5) - ButtonsOffset;
+    this.prevConversationButton.visible = false;
   }
 
   /** Prepare the screen just before showing */
@@ -146,7 +148,10 @@ export class MagicWordsScreen extends Container {
     this.mainContainer.removeChildren();
     const text = phrase.text.replace(/\{(\w+)\}/g, (match, emojiName) => {
       const emojiBase64 = this.emojies.get(emojiName);
-      if (!emojiBase64) return match; // fallback to original if not found
+      if (!emojiBase64) {
+        console.warn(`The emoji: ${emojiName} was not found!`);
+        return '';
+      }; // fallback to original if not found
 
       return `<img src="${emojiBase64}" width="32" height="32" />`;
     });
@@ -171,16 +176,34 @@ export class MagicWordsScreen extends Container {
     });
 
     this.mainContainer.addChild(phraseText);
-    phraseText.x = textPadding;
+    phraseText.x = engine().screen.width * 0.5;
     phraseText.y = engine().screen.height * 0.5;
-    phraseText.anchor = { x: 0, y: 0 };
+    phraseText.anchor = { x: 0.5, y: 0 };
+
+    const nameText = new HTMLText({
+      text: `<strong>${phrase.name}</strong>`,
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 38,
+        fill: '#3a45dfff',
+        align: 'center',
+        breakWords: true,
+        wordWrap: true,
+        wordWrapWidth: wordWarpWidthValue,
+      }
+    });
+    
+    this.mainContainer.addChild(nameText);
+    nameText.x = phraseText.x;
+    nameText.y = phraseText.y - textPadding;
+    nameText.anchor = { x: 0.5, y: 1 };
 
     const avatar = this.avatars.get(phrase.name);
     if (!avatar) {
       return;
     }
 
-    avatar.sprite.y = engine().screen.height * 0.5;
+    avatar.sprite.y = engine().screen.height * 0.5 - textPadding;
 
     if (avatar.position == "left") {
       avatar.sprite.anchor = { x: 0, y: 1 };
