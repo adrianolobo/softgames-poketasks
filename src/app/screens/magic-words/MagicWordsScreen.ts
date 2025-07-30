@@ -1,14 +1,11 @@
 import { Container, Sprite } from "pixi.js";
-import { HTMLText } from "pixi.js";
 import { Assets } from "pixi.js";
 import { Texture } from "pixi.js";
-
 import { engine } from "../../getEngine";
 import { Button } from "../../ui/Button";
-import { clamp } from "../../../engine/utils/maths";
 import { DialogueHelper } from "./DialogueHelper";
-import { PhraseText } from "./PhraseText";
-import { NameText } from "./NameText";
+import { BackMainMenuButton } from "../../globals/BackMainMenuButton";
+
 
 // Interface that defines a Phrase in a Dialogue
 export interface IPhrase {
@@ -42,10 +39,16 @@ export class MagicWordsScreen extends Container {
   // The current phrase index in a dialogue
   private currentPhraseIndex: number = 0;
   // the main container responsible for holding all dialogue
-  public mainContainer: Container;
+  private mainContainer: Container;
+  // the button responsible for going back to Main Menu
+  private backToMainMenuButton: BackMainMenuButton; 
 
   constructor() {
     super();
+
+    // initializing backToMainMenu button
+    this.backToMainMenuButton = new BackMainMenuButton();
+    this.addChild(this.backToMainMenuButton);
 
     // initializing mainContainer
     this.mainContainer = new Container();
