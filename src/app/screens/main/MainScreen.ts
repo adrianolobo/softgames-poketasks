@@ -10,6 +10,7 @@ import { SettingsPopup } from "../../popups/SettingsPopup";
 import { Button } from "../../ui/Button";
 
 import { AceOfShadowsScreen } from "../ace-of-shadows/AceOfShadowsScreen";
+import { MagicWordsScreen } from "../magic-words/MagicWordsScreen";
 
 import { Bouncer } from "./Bouncer";
 
@@ -21,6 +22,8 @@ export class MainScreen extends Container {
   public mainContainer: Container;
 
   private aceOfShadowsButton: FancyButton;
+
+  private magicWordsButton: FancyButton;
 
   /*
   private pauseButton: FancyButton;
@@ -63,6 +66,18 @@ export class MainScreen extends Container {
     });
 
     this.addChild(this.aceOfShadowsButton);
+
+    this.magicWordsButton = new Button({
+      text: "Magic Words",
+      width: 250,
+      height: 110,
+    });
+
+    this.magicWordsButton.onPress.connect(() => {
+      engine().navigation.showScreen(MagicWordsScreen);
+    });
+
+    this.addChild(this.magicWordsButton);
 
     /*
     this.pauseButton = new FancyButton({
@@ -133,7 +148,10 @@ export class MainScreen extends Container {
     this.mainContainer.y = centerY;
 
     this.aceOfShadowsButton.x = centerX;
-    this.aceOfShadowsButton.y = centerY;
+    this.aceOfShadowsButton.y = height * 0.3;
+
+    this.magicWordsButton.x = centerX;
+    this.magicWordsButton.y = height * 0.6;
 
 
     /*

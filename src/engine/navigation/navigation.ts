@@ -80,7 +80,7 @@ export class Navigation {
 
     // Setup things and pre-organise screen before showing
     if (screen.prepare) {
-      screen.prepare();
+      await screen.prepare();
     }
 
     // Add screen's resize handler, if available
