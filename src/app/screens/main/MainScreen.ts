@@ -11,6 +11,7 @@ import { Button } from "../../ui/Button";
 
 import { AceOfShadowsScreen } from "../ace-of-shadows/AceOfShadowsScreen";
 import { MagicWordsScreen } from "../magic-words/MagicWordsScreen";
+import { PhoenixFlameScreen } from "../phoenix-flame/PhoenixFlameScreen";
 
 import { Bouncer } from "./Bouncer";
 
@@ -24,6 +25,8 @@ export class MainScreen extends Container {
   private aceOfShadowsButton: FancyButton;
 
   private magicWordsButton: FancyButton;
+
+  private phoenixFlameButton: FancyButton;
 
   /*
   private pauseButton: FancyButton;
@@ -78,6 +81,18 @@ export class MainScreen extends Container {
     });
 
     this.addChild(this.magicWordsButton);
+
+    this.phoenixFlameButton = new Button({
+      text: "Phoenix Flame",
+      width: 250,
+      height: 110,
+    });
+
+    this.phoenixFlameButton.onPress.connect(() => {
+      engine().navigation.showScreen(PhoenixFlameScreen);
+    });
+
+    this.addChild(this.phoenixFlameButton);
 
     /*
     this.pauseButton = new FancyButton({
@@ -143,16 +158,19 @@ export class MainScreen extends Container {
   public resize(width: number, height: number) {
     const centerX = width * 0.5;
     const centerY = height * 0.5;
+    const buttonsPadding = 60;
 
     this.mainContainer.x = centerX;
     this.mainContainer.y = centerY;
 
     this.aceOfShadowsButton.x = centerX;
-    this.aceOfShadowsButton.y = height * 0.3;
+    this.aceOfShadowsButton.y = centerY - (this.aceOfShadowsButton.height * 0.5) - buttonsPadding;
 
     this.magicWordsButton.x = centerX;
-    this.magicWordsButton.y = height * 0.6;
+    this.magicWordsButton.y = centerY;
 
+    this.phoenixFlameButton.x = centerX;
+    this.phoenixFlameButton.y = centerY + (this.phoenixFlameButton.height * 0.5) + buttonsPadding;
 
     /*
     this.pauseButton.x = 30;
