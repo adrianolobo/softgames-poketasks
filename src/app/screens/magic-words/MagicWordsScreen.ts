@@ -10,6 +10,7 @@ import { Texture } from "pixi.js";
 import { engine } from "../../getEngine";
 import { PausePopup } from "../../popups/PausePopup";
 import { Button } from "../../ui/Button";
+import { clamp } from "../../../engine/utils/maths";
 
 interface IPhrase {
   name: string,
@@ -24,6 +25,9 @@ export class MagicWordsScreen extends Container {
   private emojies: Map<string, string> = new Map();
   private avatars: Map<string, { position: string, sprite: Sprite}> = new Map();
   private dialogue: Array<IPhrase> = [];
+  private nextConversationButton: Button;
+  private prevConversationButton: Button;
+  private currentPhraseIndex: number = 0;
 
   public mainContainer: Container;
 
@@ -32,31 +36,37 @@ export class MagicWordsScreen extends Container {
 
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
-  }
 
-  // ARRUMAR ISSO PLEO AMOR DE DEUS
-  async urlToBase64(url: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // ✅ Needed for external URLs
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject('Canvas context not available');
-
-        ctx.drawImage(img, 0, 0);
-
-        const base64 = canvas.toDataURL('image/png');
-        resolve(base64);
-      };
-
-      img.onerror = () => reject(`Failed to load image from URL: ${url}`);
-      img.src = url;
+    this.nextConversationButton = new Button({
+      text: "Next",
+      width: 150,
+      height: 110,
     });
+
+    this.nextConversationButton.onPress.connect(() => {
+      this.nextPhrase();
+    });
+
+    this.addChild(this.nextConversationButton);
+
+    this.prevConversationButton = new Button({
+      text: "Prev",
+      width: 150,
+      height: 110,
+    });
+
+    this.prevConversationButton.onPress.connect(() => {
+      this.previousPhrase();
+    });
+
+    this.addChild(this.prevConversationButton);
+
+    const ButtonsOffset = 30;
+    this.nextConversationButton.y = engine().renderer.height * 0.8;
+    this.nextConversationButton.x = (engine().renderer.width * 0.5) + (this.nextConversationButton.width * 0.5) + ButtonsOffset;
+
+    this.prevConversationButton.y = engine().renderer.height * 0.8;
+    this.prevConversationButton.x = (engine().renderer.width * 0.5) - (this.prevConversationButton.width * 0.5) - ButtonsOffset;
   }
 
   /** Prepare the screen just before showing */
@@ -127,31 +137,88 @@ export class MagicWordsScreen extends Container {
 
   /** Show screen with animations */
   public async show(): Promise<void> {
-    console.log("SHOW");
-    const phrase = new HTMLText({
-      text: `<strong>I admit</strong> <img src="${this.emojies.get('sad')}" width="30" height="30" /> the design of Cookie Crush is quite elegant in its simplicity.`,
+    this.showPhrase(this.dialogue[this.currentPhraseIndex]);
+    this.updateButtonsState();
+  }
+
+  private showPhrase(phrase: IPhrase)
+  {
+    this.mainContainer.removeChildren();
+    const text = phrase.text.replace(/\{(\w+)\}/g, (match, emojiName) => {
+      const emojiBase64 = this.emojies.get(emojiName);
+      if (!emojiBase64) return match; // fallback to original if not found
+
+      return `<img src="${emojiBase64}" width="32" height="32" />`;
+    });
+
+    const textPadding = 25;
+    const maxWordWarpValue = 700;
+    const minWordWarpValue = 500; 
+    const wordWarpWidthValue = clamp(engine().renderer.width - (textPadding * 2), minWordWarpValue, maxWordWarpValue);
+    console.log(wordWarpWidthValue);
+
+    const phraseText = new HTMLText({
+      text,
       style: {
         fontFamily: 'Arial',
         fontSize: 32,
-        fill: '#ff1010',
+        fill: '#e3e3e3',
         align: 'center',
         breakWords: true,
         wordWrap: true,
-        wordWrapWidth: engine().renderer.width - 50,
+        wordWrapWidth: wordWarpWidthValue,
       }
     });
 
-    this.addChild(phrase);
-    phrase.x = 25;
-    phrase.y = 100;
+    this.mainContainer.addChild(phraseText);
+    phraseText.x = textPadding;
+    phraseText.y = engine().screen.height * 0.5;
+    phraseText.anchor = { x: 0, y: 0 };
 
-    const avatar = this.avatars.get('Sheldon');
-    if (!avatar)
-    {
+    const avatar = this.avatars.get(phrase.name);
+    if (!avatar) {
       return;
     }
 
-    this.addChild(avatar.sprite);
+    avatar.sprite.y = engine().screen.height * 0.5;
+
+    if (avatar.position == "left") {
+      avatar.sprite.anchor = { x: 0, y: 1 };
+      avatar.sprite.x = engine().screen.width * 0.5 - wordWarpWidthValue * 0.5;
+    }
+    else {
+      avatar.sprite.anchor = { x: 1, y: 1 };
+      avatar.sprite.x = engine().screen.width * 0.5 + wordWarpWidthValue * 0.5;
+    }
+
+    this.mainContainer.addChild(avatar.sprite);
+  }
+
+  private updateButtonsState() {
+    this.prevConversationButton.visible = true;
+    this.nextConversationButton.visible = true;
+
+    if (this.currentPhraseIndex === 0) {
+      this.prevConversationButton.visible = false;
+      return;
+    }
+
+    if (this.currentPhraseIndex === this.dialogue.length - 1) {
+      this.nextConversationButton.visible = false;
+      return;
+    }
+  }
+
+  private nextPhrase() {
+    this.currentPhraseIndex++;
+    this.showPhrase(this.dialogue[this.currentPhraseIndex]);
+    this.updateButtonsState();
+  }
+
+  private previousPhrase() {
+    this.currentPhraseIndex--;
+    this.showPhrase(this.dialogue[this.currentPhraseIndex]);
+    this.updateButtonsState();
   }
 
   /** Hide screen with animations */
