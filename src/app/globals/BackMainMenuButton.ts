@@ -13,8 +13,8 @@ export class BackMainMenuButton extends Button {
     });
 
     const defaultPadding = 30;
-    this.x = defaultPadding + (this.width * 0.5);
-    this.y = defaultPadding + (this.height * 0.5);
+    this.x = defaultPadding + this.width * 0.5;
+    this.y = defaultPadding + this.height * 0.5;
 
     this.onPress.connect(() => {
       engine().navigation.showScreen(MainScreen);

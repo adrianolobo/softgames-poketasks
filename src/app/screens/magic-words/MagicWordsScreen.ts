@@ -6,17 +6,16 @@ import { Button } from "../../ui/Button";
 import { DialogueHelper } from "./DialogueHelper";
 import { BackMainMenuButton } from "../../globals/BackMainMenuButton";
 
-
 // Interface that defines a Phrase in a Dialogue
 export interface IPhrase {
-  name: string,
-  text: string,
+  name: string;
+  text: string;
 }
 
 // Interface that defines the avatar
 export interface IAvatar {
-  position: string,
-  sprite: Sprite,
+  position: string;
+  sprite: Sprite;
 }
 
 /** The screen that holds the app */
@@ -24,7 +23,8 @@ export class MagicWordsScreen extends Container {
   /** Assets bundles required by this screen */
   public static assetBundles = ["magic-words"];
   // The API to get the Dialogue
-  public static APIURL = 'https://private-624120-softgamesassignment.apiary-mock.com/v2/magicwords';
+  public static APIURL =
+    "https://private-624120-softgamesassignment.apiary-mock.com/v2/magicwords";
 
   // Map that stores emojies that come from the API
   private emojies: Map<string, string> = new Map();
@@ -41,7 +41,7 @@ export class MagicWordsScreen extends Container {
   // the main container responsible for holding all dialogue
   private mainContainer: Container;
   // the button responsible for going back to Main Menu
-  private backToMainMenuButton: BackMainMenuButton; 
+  private backToMainMenuButton: BackMainMenuButton;
 
   constructor() {
     super();
@@ -83,11 +83,17 @@ export class MagicWordsScreen extends Container {
     // Managing buttons position and start visibility
     const ButtonsOffset = 30;
     this.nextConversationButton.y = engine().renderer.height * 0.8;
-    this.nextConversationButton.x = (engine().renderer.width * 0.5) + (this.nextConversationButton.width * 0.5) + ButtonsOffset;
+    this.nextConversationButton.x =
+      engine().renderer.width * 0.5 +
+      this.nextConversationButton.width * 0.5 +
+      ButtonsOffset;
     this.nextConversationButton.visible = false;
 
     this.prevConversationButton.y = engine().renderer.height * 0.8;
-    this.prevConversationButton.x = (engine().renderer.width * 0.5) - (this.prevConversationButton.width * 0.5) - ButtonsOffset;
+    this.prevConversationButton.x =
+      engine().renderer.width * 0.5 -
+      this.prevConversationButton.width * 0.5 -
+      ButtonsOffset;
     this.prevConversationButton.visible = false;
   }
 
@@ -95,37 +101,43 @@ export class MagicWordsScreen extends Container {
   public async prepare(): Promise<void> {
     const response = await fetch(MagicWordsScreen.APIURL);
     if (!response.ok) {
-      throw new Error('Error fetching from API');
+      throw new Error("Error fetching from API");
     }
     const data = await response.json();
 
     if (!data.emojies) {
-      throw new Error('Error, response data invalid, missing Emojies');
+      throw new Error("Error, response data invalid, missing Emojies");
     }
 
     // Setup the Emojis from the API
     for (const emoji of data.emojies) {
       // create a texture from the emoji URL
-      const texture = await Assets.load<Texture>({src: emoji.url, loadParser: 'loadTextures'});
+      const texture = await Assets.load<Texture>({
+        src: emoji.url,
+        loadParser: "loadTextures",
+      });
       // save the emoji image as base64 data, so that it can be embeded inside the HTMLText
       const base64Texture = await engine().renderer.extract.base64(texture);
       this.emojies.set(emoji.name, base64Texture);
     }
 
     if (!data.avatars) {
-      throw new Error('Error, response data invalid, missing Avatars');
+      throw new Error("Error, response data invalid, missing Avatars");
     }
 
     // Setup the avatars from the API
     for (const avatar of data.avatars) {
-      const texture = await Assets.load<Texture>({src: avatar.url, loadParser: 'loadTextures'});
+      const texture = await Assets.load<Texture>({
+        src: avatar.url,
+        loadParser: "loadTextures",
+      });
       const sprite = new Sprite(texture);
       this.avatars.set(avatar.name, { position: avatar.position, sprite });
     }
 
     // Setup the dialogue data from the API
     if (!data.dialogue) {
-      throw new Error('Error, response data invalid, missing Dialogue');
+      throw new Error("Error, response data invalid, missing Dialogue");
     }
 
     this.dialogue = data.dialogue;
@@ -134,7 +146,12 @@ export class MagicWordsScreen extends Container {
   // show the initial state of the screen
   public async show(): Promise<void> {
     // Start the Dialogue
-    DialogueHelper.ShowPhrase(this.dialogue[this.currentPhraseIndex], this.mainContainer, this.emojies, this.avatars);
+    DialogueHelper.ShowPhrase(
+      this.dialogue[this.currentPhraseIndex],
+      this.mainContainer,
+      this.emojies,
+      this.avatars,
+    );
     this.updateButtonsState();
   }
 
@@ -157,14 +174,24 @@ export class MagicWordsScreen extends Container {
   // Go to next Phrase
   private nextPhrase() {
     this.currentPhraseIndex++;
-    DialogueHelper.ShowPhrase(this.dialogue[this.currentPhraseIndex], this.mainContainer, this.emojies, this.avatars);
+    DialogueHelper.ShowPhrase(
+      this.dialogue[this.currentPhraseIndex],
+      this.mainContainer,
+      this.emojies,
+      this.avatars,
+    );
     this.updateButtonsState();
   }
 
   // Go to previous Phrase
   private previousPhrase() {
     this.currentPhraseIndex--;
-    DialogueHelper.ShowPhrase(this.dialogue[this.currentPhraseIndex], this.mainContainer, this.emojies, this.avatars);
+    DialogueHelper.ShowPhrase(
+      this.dialogue[this.currentPhraseIndex],
+      this.mainContainer,
+      this.emojies,
+      this.avatars,
+    );
     this.updateButtonsState();
   }
 }

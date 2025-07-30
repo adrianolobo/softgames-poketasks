@@ -1,5 +1,4 @@
 import { animate } from "motion";
-import type { Ticker } from "pixi.js";
 import { Container } from "pixi.js";
 import { engine } from "../../getEngine";
 import { Card } from "./Card";
@@ -15,7 +14,7 @@ export class AceOfShadowsScreen extends Container {
   // single card that will be animated
   private cards: Card[] = [];
   // the button responsible for going back to Main Menu
-  private backToMainMenuButton: BackMainMenuButton; 
+  private backToMainMenuButton: BackMainMenuButton;
 
   constructor() {
     super();
@@ -32,9 +31,9 @@ export class AceOfShadowsScreen extends Container {
     // initializing Cards in Deck
     const totalNumberOfCardsInDeck = 144;
     for (let index = 0; index < totalNumberOfCardsInDeck; index++) {
-        const card = new Card();
-        this.cards.push(card);
-        this.mainContainer.addChild(card);
+      const card = new Card();
+      this.cards.push(card);
+      this.mainContainer.addChild(card);
     }
   }
 
@@ -44,7 +43,7 @@ export class AceOfShadowsScreen extends Container {
     // Reposition all screen cards
     this.cards.forEach((card, index) => {
       const cardInitialBasePositionY = height * 0.2;
-      const cardOffset = (index * 0.5);
+      const cardOffset = index * 0.5;
       card.x = centerX + cardOffset;
       card.y = cardInitialBasePositionY + cardOffset;
       card.zIndex = index;
@@ -56,19 +55,22 @@ export class AceOfShadowsScreen extends Container {
     for (let index = this.cards.length - 1; index >= 0; index--) {
       const card = this.cards[index];
       const offsetPosition = (this.cards.length - index) * 0.5;
-      const cardFinalPositionY = (engine().renderer.height * 0.9) - (card.height * 0.5) + offsetPosition;
-      const cardFinalPositionX = (engine().renderer.width * 0.5) + offsetPosition;
-      
+      const cardFinalPositionY =
+        engine().renderer.height * 0.9 - card.height * 0.5 + offsetPosition;
+      const cardFinalPositionX = engine().renderer.width * 0.5 + offsetPosition;
 
       animate(
-        card, 
+        card,
         { y: cardFinalPositionY, x: cardFinalPositionX },
-        { duration: 2, delay: this.cards.length - index, onUpdate: () => {
-          // This is responsible for changing the card z-index from Top of the deck to bottom
-          if (card.y < engine().renderer.height * 0.5)
-            return;
-          card.zIndex = this.cards.length - index;
-        }},
+        {
+          duration: 2,
+          delay: this.cards.length - index,
+          onUpdate: () => {
+            // This is responsible for changing the card z-index from Top of the deck to bottom
+            if (card.y < engine().renderer.height * 0.5) return;
+            card.zIndex = this.cards.length - index;
+          },
+        },
       );
     }
   }

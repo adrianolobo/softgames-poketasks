@@ -61,7 +61,7 @@ export class MainScreen extends Container {
     this.mainContainer.x = centerX;
     this.mainContainer.y = centerY;
 
-    this.aceOfShadowsButton.y = - (this.aceOfShadowsButton.height * 0.5) - buttonsPadding;
-
+    this.aceOfShadowsButton.y =
+      -(this.aceOfShadowsButton.height * 0.5) - buttonsPadding;
   }
 }
